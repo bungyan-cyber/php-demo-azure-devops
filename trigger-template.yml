@@ -1,0 +1,29 @@
+jobs:
+- job: Build
+  steps:
+    - script: |
+        sudo apt-get update
+        sudo apt-get install -y php
+        php -v
+        php index.php
+      displayName: 'Install PHP and run script'
+
+- job: Deploy
+  dependsOn: Build
+  steps:
+    - task: CopyFilesOverSSH@0
+      inputs:
+        sshEndpoint: 'mySSHServiceConnection'
+        sourceFolder: '$(Build.Repository.LocalPath)'
+        targetFolder: '/var/www/html'
+        cleanTargetFolder: false
+      displayName: 'Copy files to web server'
+
+    - task: SSH@0
+      inputs:
+        sshEndpoint: 'mySSHServiceConnection'
+        runOptions: 'inline'
+        inline: |
+          sudo systemctl restart apache2
+        failOnStdErr: true
+      displayName: 'Restart Apache'

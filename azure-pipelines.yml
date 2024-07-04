@@ -1,0 +1,10 @@
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  name: 'default'
+
+jobs:
+- template: trigger-template.yml  # Reference the template file
